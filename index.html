@@ -27,32 +27,39 @@
             border-radius: 10px;
             background: rgba(0, 0, 0, 0.6);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
         h1 {
-            margin-bottom: 20px;
-            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-size: 2rem;
             animation: fadeIn 2s ease-in-out;
         }
-        .clock {
-            font-size: 2rem;
+        .clock-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin: 10px 0;
+        }
+        .clock {
+            font-size: 2.5rem;
             font-weight: bold;
             animation: pulse 2s infinite alternate;
         }
         .search-bar {
             display: flex;
+            justify-content: center;
             margin: 20px 0;
         }
         .search-bar input {
             padding: 10px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             border: none;
             border-radius: 5px 0 0 5px;
             width: 70%;
         }
         .search-bar button {
             padding: 10px 20px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             border: none;
             border-radius: 0 5px 5px 0;
             background: cyan;
@@ -65,29 +72,31 @@
             color: black;
         }
         .weather {
-            margin: 20px 0;
-            font-size: 1.5rem;
+            margin: 10px 0;
+            font-size: 1rem;
+            opacity: 0.8;
         }
         .forecast {
             display: flex;
             justify-content: space-around;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         .forecast div {
             background: rgba(255, 255, 255, 0.2);
-            padding: 10px;
+            padding: 5px;
             border-radius: 5px;
             text-align: center;
+            font-size: 0.9rem;
         }
         .links {
-            margin: 20px 0;
+            margin: 10px 0;
         }
         .links a {
             display: inline-block;
             color: cyan;
             text-decoration: none;
-            margin: 10px;
-            font-size: 1.2rem;
+            margin: 5px;
+            font-size: 1rem;
             transition: color 0.3s ease;
         }
         .links a:hover {
@@ -107,19 +116,6 @@
             background: cyan;
             color: black;
         }
-        .social-links {
-            margin-top: 20px;
-        }
-        .social-links a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-            font-size: 1.5rem;
-            transition: color 0.3s ease;
-        }
-        .social-links a:hover {
-            color: cyan;
-        }
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -129,27 +125,14 @@
             from { transform: scale(1); }
             to { transform: scale(1.1); }
         }
-        /* Light Mode */
-        body.light-mode {
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        body.light-mode .container {
-            background: rgba(255, 255, 255, 0.8);
-        }
-        body.light-mode .search-bar button {
-            background: #007bff;
-            color: white;
-        }
-        body.light-mode .search-bar button:hover {
-            background: #0056b3;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="welcome-message">Welcome Back, <span id="username">RAYZR</span></h1>
-        <div class="clock" id="clock">00:00:00</div>
+        <div class="clock-container">
+            <div class="clock" id="clock">00:00:00</div>
+        </div>
         
         <div class="search-bar">
             <input type="text" id="search" placeholder="Search Google...">
@@ -167,13 +150,6 @@
         </div>
         
         <button class="bg-btn" onclick="changeBackground()">Change Background</button>
-        <button class="mode-btn" onclick="toggleMode()">Toggle Mode</button>
-        
-        <div class="social-links">
-            <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-        </div>
     </div>
 
     <script>
@@ -223,7 +199,7 @@
                 data.forecast.forecastday.forEach(day => {
                     const dayDiv = document.createElement('div');
                     dayDiv.innerHTML = `
-                        <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' })}</p>
+                        <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</p>
                         <p>☀️ ${day.day.maxtemp_f}°F / 🌙 ${day.day.mintemp_f}°F</p>
                         <p>${day.day.condition.text}</p>
                     `;
@@ -235,17 +211,25 @@
         }
         fetchWeather();
 
-        // Background Change
-        function changeBackground() {
-            const newBg = `https://source.unsplash.com/random/1920x1080?sig=${Math.random()}`;
-            document.body.style.backgroundImage = `url('${newBg}')`;
-            localStorage.setItem('bgImage', newBg);
-        }
-
-        // Dark/Light Mode Toggle
-        function toggleMode() {
-            document.body.classList.toggle('light-mode');
-            localStorage.setItem('mode', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        // Background Change with Pexels API
+        async function changeBackground() {
+            const pexelsApiKey = '996gusySgGCKJvAImJC3qtoDNP1QxmHengUSqNTCJhST2iSZGuhRqvas';
+            const query = ['nature', 'city', 'abstract', 'space'][Math.floor(Math.random() * 4)];
+            const url = `https://api.pexels.com/v1/search?query=${query}&per_page=1&page=1`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        Authorization: pexelsApiKey
+                    }
+                });
+                const data = await response.json();
+                const imageUrl = data.photos[0].src.large;
+                document.body.style.backgroundImage = `url('${imageUrl}')`;
+                localStorage.setItem('bgImage', imageUrl);
+            } catch (error) {
+                console.error('Error fetching background:', error);
+            }
         }
 
         // Load Saved Preferences on Page Load
@@ -255,11 +239,8 @@
             if (savedBg) {
                 document.body.style.backgroundImage = `url('${savedBg}')`;
             }
-            const savedMode = localStorage.getItem('mode');
-            if (savedMode === 'light') {
-                document.body.classList.add('light-mode');
-            }
         };
     </script>
 </body>
 </html>
+                    
