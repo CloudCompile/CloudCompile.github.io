@@ -116,6 +116,76 @@
             background: cyan;
             color: black;
         }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .chat-header {
+            background: #333;
+            color: white;
+            padding: 10px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .chat-header i {
+            font-size: 1.2rem;
+        }
+        .chat-body {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        .chat-body.hidden {
+            display: none;
+        }
+        .chat-message {
+            margin: 10px 0;
+        }
+        .chat-message.user {
+            text-align: right;
+            color: cyan;
+        }
+        .chat-message.ai {
+            text-align: left;
+            color: #ccc;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #444;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: white;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background: cyan;
+            border: none;
+            color: black;
+            cursor: pointer;
+        }
+        .chat-input button:hover {
+            background: white;
+        }
+
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -142,7 +212,7 @@
         <div class="weather" id="weather">Loading weather...</div>
         <div class="forecast" id="forecast"></div>
         
-        <div class="links">
+        <div class="links" id="links-container">
             <a href="https://google.com" target="_blank"><i class="fas fa-globe"></i> Google</a>
             <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             <a href="https://kick.com" target="_blank"><i class="fas fa-video"></i> Kick</a>
@@ -150,9 +220,30 @@
         </div>
         
         <button class="bg-btn" onclick="changeBackground()">Change Background</button>
+        <button class="mode-btn" onclick="toggleMode()">Toggle Light/Dark Mode</button>
+        <button class="mode-btn" onclick="toggleTemperatureUnit()">Toggle °F/°C</button>
+    </div>
+
+    <!-- AI Chat Widget -->
+    <div class="chat-widget" id="chat-widget">
+        <div class="chat-header" onclick="toggleChat()">
+            <span>AI Chat</span>
+            <i class="fas fa-chevron-up" id="chat-toggle-icon"></i>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <!-- Chat Messages Go Here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
     <script>
+        let isLightMode = false;
+        let isFahrenheit = true;
+        let chatOpen = true;
+
         // Name Prompt
         function askForName() {
             let username = localStorage.getItem('username');
@@ -165,15 +256,27 @@
                 }
             }
             document.getElementById('username').textContent = username;
+            updateGreeting();
         }
 
         // Clock
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString();
+            updateGreeting();
         }
         setInterval(updateClock, 1000);
-        updateClock();
+
+        // Greeting Based on Time
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = '';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 18) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+            document.getElementById('welcome-message').textContent = `${greeting}, ${document.getElementById('username').textContent}`;
+        }
 
         // Search Functionality
         function searchGoogle() {
@@ -185,35 +288,50 @@
 
         // Weather API Integration
         async function fetchWeather() {
-            const apiKey = '569b88f71e074621bbd165811251803';
+            const apiKey = 'YOUR_WEATHER_API_KEY'; // Replace with your actual API key
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
                 const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=3&aqi=no`;
-                const response = await fetch(url);
-                const data = await response.json();
-                document.getElementById('weather').textContent = `🌡️ ${data.current.temp_f}°F - ${data.current.condition.text}`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const temp = isFahrenheit ? data.current.temp_f : data.current.temp_c;
+                    const unit = isFahrenheit ? '°F' : '°C';
+                    document.getElementById('weather').textContent = `🌡️ ${temp}${unit} - ${data.current.condition.text}`;
 
-                // Display Forecast
-                const forecastContainer = document.getElementById('forecast');
-                forecastContainer.innerHTML = '';
-                data.forecast.forecastday.forEach(day => {
-                    const dayDiv = document.createElement('div');
-                    dayDiv.innerHTML = `
-                        <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</p>
-                        <p>☀️ ${day.day.maxtemp_f}°F / 🌙 ${day.day.mintemp_f}°F</p>
-                        <p>${day.day.condition.text}</p>
-                    `;
-                    forecastContainer.appendChild(dayDiv);
-                });
+                    // Display Forecast
+                    const forecastContainer = document.getElementById('forecast');
+                    forecastContainer.innerHTML = '';
+                    data.forecast.forecastday.forEach(day => {
+                        const dayDiv = document.createElement('div');
+                        const maxTemp = isFahrenheit ? day.day.maxtemp_f : day.day.maxtemp_c;
+                        const minTemp = isFahrenheit ? day.day.mintemp_f : day.day.mintemp_c;
+                        dayDiv.innerHTML = `
+                            <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</p>
+                            <p>☀️ ${maxTemp}${unit} / 🌙 ${minTemp}${unit}</p>
+                            <p>${day.day.condition.text}</p>
+                        `;
+                        forecastContainer.appendChild(dayDiv);
+                    });
+                } catch (error) {
+                    console.error('Error fetching weather:', error);
+                    document.getElementById('weather').textContent = 'Unable to retrieve weather.';
+                }
             }, () => {
                 document.getElementById('weather').textContent = 'Unable to retrieve weather.';
             });
         }
         fetchWeather();
 
+        // Temperature Unit Toggle
+        function toggleTemperatureUnit() {
+            isFahrenheit = !isFahrenheit;
+            fetchWeather();
+        }
+
         // Background Change with Pexels API
         async function changeBackground() {
-            const pexelsApiKey = '996gusySgGCKJvAImJC3qtoDNP1QxmHengUSqNTCJhST2iSZGuhRqvas';
+            const pexelsApiKey = 'YOUR_PEXELS_API_KEY'; // Replace with your actual API key
             const query = ['nature', 'city', 'abstract', 'space'][Math.floor(Math.random() * 4)];
             const url = `https://api.pexels.com/v1/search?query=${query}&per_page=1&page=1`;
             
@@ -232,6 +350,18 @@
             }
         }
 
+        // Background Slideshow
+        function startBackgroundSlideshow() {
+            setInterval(changeBackground, 30000); // Change every 30 seconds
+        }
+
+        // Dark/Light Mode Toggle
+        function toggleMode() {
+            isLightMode = !isLightMode;
+            document.body.classList.toggle('light-mode', isLightMode);
+            localStorage.setItem('lightMode', isLightMode);
+        }
+
         // Load Saved Preferences on Page Load
         window.onload = function() {
             askForName();
@@ -239,8 +369,97 @@
             if (savedBg) {
                 document.body.style.backgroundImage = `url('${savedBg}')`;
             }
+            startBackgroundSlideshow();
+
+            const savedMode = localStorage.getItem('lightMode');
+            if (savedMode === 'true') {
+                isLightMode = true;
+                document.body.classList.add('light-mode');
+            }
+
+            loadChatHistory();
         };
+
+        // Chat Functions
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            const chatBody = document.getElementById('chat-body');
+            const icon = document.getElementById('chat-toggle-icon');
+            chatBody.classList.toggle('hidden', !chatOpen);
+            icon.classList.toggle('fa-chevron-up', chatOpen);
+            icon.classList.toggle('fa-chevron-down', !chatOpen);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            appendMessage(message, 'user');
+            input.value = '';
+
+            // Call AI API
+            getAIResponse(message);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function appendMessage(message, sender) {
+            const chatBody = document.getElementById('chat-body');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            messageDiv.textContent = message;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // Save chat history
+            saveChatHistory();
+        }
+
+        async function getAIResponse(userMessage) {
+            const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your OpenAI API key
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [{ role: 'user', content: userMessage }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiMessage = data.choices[0].message.content.trim();
+                appendMessage(aiMessage, 'ai');
+            } catch (error) {
+                console.error('Error fetching AI response:', error);
+                appendMessage('Sorry, I encountered an error. Please try again later.', 'ai');
+            }
+        }
+
+        function saveChatHistory() {
+            const chatBody = document.getElementById('chat-body');
+            const messages = Array.from(chatBody.children).map(el => ({
+                sender: el.classList.contains('user') ? 'user' : 'ai',
+                text: el.textContent
+            }));
+            localStorage.setItem('chatHistory', JSON.stringify(messages));
+        }
+
+        function loadChatHistory() {
+            const chatBody = document.getElementById('chat-body');
+            const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            chatHistory.forEach(msg => appendMessage(msg.text, msg.sender));
+        }
     </script>
 </body>
 </html>
-                    
