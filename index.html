@@ -3,18 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Personal Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* General Styling */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            font-family: 'Roboto', sans-serif;
             background: #222 url('https://source.unsplash.com/random/1920x1080') no-repeat center center/cover;
             color: white;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            animation: fadeIn 2s ease-in-out;
         }
         .clock {
-            font-size: 3rem;
+            font-size: 2rem;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: pulse 2s infinite alternate;
+        }
+        .search-bar {
+            display: flex;
+            margin: 20px 0;
+        }
+        .search-bar input {
+            padding: 10px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            width: 70%;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background: cyan;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .search-bar button:hover {
+            background: white;
+            color: black;
+        }
+        .weather {
+            margin: 20px 0;
+            font-size: 1.5rem;
+        }
+        .forecast {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .forecast div {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .links {
             margin: 20px 0;
         }
         .links a {
@@ -23,48 +88,96 @@
             text-decoration: none;
             margin: 10px;
             font-size: 1.2rem;
+            transition: color 0.3s ease;
         }
         .links a:hover {
             color: white;
         }
-        .search-bar {
-            margin: 20px 0;
-        }
-        .weather {
-            margin: 20px 0;
-            font-size: 1.2rem;
-        }
-        .bg-btn {
+        .bg-btn, .mode-btn {
             margin-top: 10px;
-            padding: 10px;
-            background: #333;
+            padding: 10px 20px;
             border: none;
+            border-radius: 5px;
+            background: #333;
             color: white;
             cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .bg-btn:hover, .mode-btn:hover {
+            background: cyan;
+            color: black;
+        }
+        .social-links {
+            margin-top: 20px;
+        }
+        .social-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        .social-links a:hover {
+            color: cyan;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+        /* Light Mode */
+        body.light-mode {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        body.light-mode .container {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        body.light-mode .search-bar button {
+            background: #007bff;
+            color: white;
+        }
+        body.light-mode .search-bar button:hover {
+            background: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1 id="welcome-message">Welcome Back, <span id="username">RAYZR</span></h1>
-    <div class="clock" id="clock">00:00:00</div>
-    
-    <div class="search-bar">
-        <input type="text" id="search" placeholder="Search Google...">
-        <button onclick="searchGoogle()">Go</button>
+    <div class="container">
+        <h1 id="welcome-message">Welcome Back, <span id="username">RAYZR</span></h1>
+        <div class="clock" id="clock">00:00:00</div>
+        
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search Google...">
+            <button onclick="searchGoogle()">Go</button>
+        </div>
+        
+        <div class="weather" id="weather">Loading weather...</div>
+        <div class="forecast" id="forecast"></div>
+        
+        <div class="links">
+            <a href="https://google.com" target="_blank"><i class="fas fa-globe"></i> Google</a>
+            <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://kick.com" target="_blank"><i class="fas fa-video"></i> Kick</a>
+            <a href="https://dashboard.kick.com" target="_blank"><i class="fas fa-chart-line"></i> Kick Dashboard</a>
+        </div>
+        
+        <button class="bg-btn" onclick="changeBackground()">Change Background</button>
+        <button class="mode-btn" onclick="toggleMode()">Toggle Mode</button>
+        
+        <div class="social-links">
+            <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+        </div>
     </div>
-    
-    <div class="weather" id="weather">Loading weather...</div>
-    
-    <div class="links">
-        <a href="https://google.com" target="_blank">Google</a>
-        <a href="https://github.com" target="_blank">GitHub</a>
-        <a href="https://kick.com" target="_blank">Kick</a>
-        <a href="https://dashboard.kick.com" target="_blank">Kick Dashboard</a>
-    </div>
-    
-    <button class="bg-btn" onclick="changeBackground()">Change Background</button>
-    
+
     <script>
+        // Name Prompt
         function askForName() {
             let username = localStorage.getItem('username');
             if (!username) {
@@ -77,46 +190,74 @@
             }
             document.getElementById('username').textContent = username;
         }
-        
+
+        // Clock
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString();
         }
         setInterval(updateClock, 1000);
         updateClock();
-        
+
+        // Search Functionality
         function searchGoogle() {
             const query = document.getElementById('search').value;
             if (query) {
                 window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             }
         }
-        
+
+        // Weather API Integration
         async function fetchWeather() {
-            const apiKey = 'YOUR_WEATHERAPI_KEY';
+            const apiKey = '569b88f71e074621bbd165811251803';
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
-                const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}&aqi=no`;
+                const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=3&aqi=no`;
                 const response = await fetch(url);
                 const data = await response.json();
                 document.getElementById('weather').textContent = `🌡️ ${data.current.temp_f}°F - ${data.current.condition.text}`;
+
+                // Display Forecast
+                const forecastContainer = document.getElementById('forecast');
+                forecastContainer.innerHTML = '';
+                data.forecast.forecastday.forEach(day => {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.innerHTML = `
+                        <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' })}</p>
+                        <p>☀️ ${day.day.maxtemp_f}°F / 🌙 ${day.day.mintemp_f}°F</p>
+                        <p>${day.day.condition.text}</p>
+                    `;
+                    forecastContainer.appendChild(dayDiv);
+                });
             }, () => {
                 document.getElementById('weather').textContent = 'Unable to retrieve weather.';
             });
         }
         fetchWeather();
-        
+
+        // Background Change
         function changeBackground() {
             const newBg = `https://source.unsplash.com/random/1920x1080?sig=${Math.random()}`;
             document.body.style.backgroundImage = `url('${newBg}')`;
             localStorage.setItem('bgImage', newBg);
         }
-        
+
+        // Dark/Light Mode Toggle
+        function toggleMode() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('mode', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        // Load Saved Preferences on Page Load
         window.onload = function() {
             askForName();
             const savedBg = localStorage.getItem('bgImage');
             if (savedBg) {
                 document.body.style.backgroundImage = `url('${savedBg}')`;
+            }
+            const savedMode = localStorage.getItem('mode');
+            if (savedMode === 'light') {
+                document.body.classList.add('light-mode');
             }
         };
     </script>
