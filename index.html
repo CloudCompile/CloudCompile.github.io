@@ -45,7 +45,7 @@
     </style>
 </head>
 <body>
-    <h1>Welcome Back, RAYZR</h1>
+    <h1 id="welcome-message">Welcome Back, <span id="username">RAYZR</span></h1>
     <div class="clock" id="clock">00:00:00</div>
     
     <div class="search-bar">
@@ -65,6 +65,19 @@
     <button class="bg-btn" onclick="changeBackground()">Change Background</button>
     
     <script>
+        function askForName() {
+            let username = localStorage.getItem('username');
+            if (!username) {
+                username = prompt('What is your name?');
+                if (username) {
+                    localStorage.setItem('username', username);
+                } else {
+                    username = 'User';
+                }
+            }
+            document.getElementById('username').textContent = username;
+        }
+        
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString();
@@ -80,7 +93,7 @@
         }
         
         async function fetchWeather() {
-            const apiKey = '569b88f71e074621bbd165811251803';
+            const apiKey = 'YOUR_WEATHERAPI_KEY';
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
                 const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}&aqi=no`;
@@ -100,6 +113,7 @@
         }
         
         window.onload = function() {
+            askForName();
             const savedBg = localStorage.getItem('bgImage');
             if (savedBg) {
                 document.body.style.backgroundImage = `url('${savedBg}')`;
