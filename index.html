@@ -86,7 +86,7 @@
                 const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}&aqi=no`;
                 const response = await fetch(url);
                 const data = await response.json();
-                document.getElementById('weather').textContent = `🌡️ ${data.current.temp_c}°C - ${data.current.condition.text}`;
+                document.getElementById('weather').textContent = `🌡️ ${data.current.temp_f}°F - ${data.current.condition.text}`;
             }, () => {
                 document.getElementById('weather').textContent = 'Unable to retrieve weather.';
             });
