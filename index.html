@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #222 url('https://source.unsplash.com/random/1920x1080') no-repeat center center/cover;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .clock {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        .links a {
+            display: inline-block;
+            color: cyan;
+            text-decoration: none;
+            margin: 10px;
+            font-size: 1.2rem;
+        }
+        .links a:hover {
+            color: white;
+        }
+        .search-bar {
+            margin: 20px 0;
+        }
+        .weather {
+            margin: 20px 0;
+            font-size: 1.2rem;
+        }
+        .bg-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background: #333;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome Back, RAYZR</h1>
+    <div class="clock" id="clock">00:00:00</div>
+    
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="Search Google...">
+        <button onclick="searchGoogle()">Go</button>
+    </div>
+    
+    <div class="weather" id="weather">Loading weather...</div>
+    
+    <div class="links">
+        <a href="https://google.com" target="_blank">Google</a>
+        <a href="https://github.com" target="_blank">GitHub</a>
+        <a href="https://kick.com" target="_blank">Kick</a>
+        <a href="https://dashboard.kick.com" target="_blank">Kick Dashboard</a>
+    </div>
+    
+    <button class="bg-btn" onclick="changeBackground()">Change Background</button>
+    
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        
+        function searchGoogle() {
+            const query = document.getElementById('search').value;
+            if (query) {
+                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            }
+        }
+        
+        async function fetchWeather() {
+            const apiKey = '569b88f71e074621bbd165811251803';
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+                const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}&aqi=no`;
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById('weather').textContent = `🌡️ ${data.current.temp_c}°C - ${data.current.condition.text}`;
+            }, () => {
+                document.getElementById('weather').textContent = 'Unable to retrieve weather.';
+            });
+        }
+        fetchWeather();
+        
+        function changeBackground() {
+            const newBg = `https://source.unsplash.com/random/1920x1080?sig=${Math.random()}`;
+            document.body.style.backgroundImage = `url('${newBg}')`;
+            localStorage.setItem('bgImage', newBg);
+        }
+        
+        window.onload = function() {
+            const savedBg = localStorage.getItem('bgImage');
+            if (savedBg) {
+                document.body.style.backgroundImage = `url('${savedBg}')`;
+            }
+        };
+    </script>
+</body>
+</html>
