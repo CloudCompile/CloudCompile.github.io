@@ -51,54 +51,60 @@
             animation: pulse 2s infinite alternate;
         }
 
-        .search-bar {
-            display: flex;
-            justify-content: center;
+        .quote-container {
             margin: 20px 0;
+            font-size: 1.2rem;
+            color: #ccc;
         }
 
-        .search-bar input {
+        .quote-container span {
+            font-style: italic;
+        }
+
+        .quote-container button {
             padding: 10px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px 0 0 5px;
-            width: 70%;
-        }
-
-        .search-bar button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 0 5px 5px 0;
             background: cyan;
             color: black;
+            border: none;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
-        .search-bar button:hover {
+        .quote-container button:hover {
             background: white;
             color: black;
         }
 
-        .weather {
-            margin: 10px 0;
+        .todo-container {
+            margin: 20px 0;
+        }
+
+        .todo-container input,
+        .todo-container button {
+            padding: 10px;
             font-size: 1rem;
-            opacity: 0.8;
+            margin-top: 5px;
+            width: 100%;
         }
 
-        .forecast {
-            display: flex;
-            justify-content: space-around;
+        .todo-container ul {
+            list-style: none;
+            padding: 0;
             margin-top: 10px;
+            font-size: 1rem;
         }
 
-        .forecast div {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 0.9rem;
+        .todo-container li {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .todo-container li button {
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
 
         .links {
@@ -136,105 +142,42 @@
             color: black;
         }
 
-        /* Chat Widget */
-        .chat-widget {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
+        /* New Section for AI Query */
+        .query-container {
+            margin-top: 30px;
+            text-align: center;
         }
 
-        .chat-header {
-            background: #333;
-            color: white;
+        .query-container input {
             padding: 10px;
+            width: 70%;
+            margin-right: 10px;
             font-size: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
-        .chat-header i {
-            font-size: 1.2rem;
-        }
-
-        .chat-body {
-            flex: 1;
+        .query-container button {
             padding: 10px;
-            overflow-y: auto;
-            max-height: 300px;
-        }
-
-        .chat-body.hidden {
-            display: none;
-        }
-
-        .chat-message {
-            margin: 10px 0;
-        }
-
-        .chat-message.user {
-            text-align: right;
-            color: cyan;
-        }
-
-        .chat-message.ai {
-            text-align: left;
-            color: #ccc;
-        }
-
-        .chat-input {
-            display: flex;
-            border-top: 1px solid #444;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            color: white;
-        }
-
-        .chat-input button {
-            padding: 10px 20px;
-            background: cyan;
-            border: none;
+            background-color: cyan;
             color: black;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        .chat-input button:hover {
-            background: white;
+        .query-container button:hover {
+            background-color: white;
+            color: black;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulse {
-            from {
-                transform: scale(1);
-            }
-
-            to {
-                transform: scale(1.1);
-            }
+        .response-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: #ccc;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -246,14 +189,31 @@
             <div class="clock" id="clock">00:00:00</div>
         </div>
 
-        <div class="search-bar">
-            <input type="text" id="search" placeholder="Search Google...">
-            <button onclick="searchGoogle()">Go</button>
+        <!-- Quote of the Day -->
+        <div class="quote-container">
+            <p>Quote of the Day: <span id="quote">Loading...</span></p>
+            <button onclick="fetchQuote()">Get New Quote</button>
         </div>
 
-        <div class="weather" id="weather">Loading weather...</div>
-        <div class="forecast" id="forecast"></div>
+        <!-- To-Do List -->
+        <div class="todo-container">
+            <h3>Your Tasks:</h3>
+            <input type="text" id="todo-input" placeholder="Add a new task...">
+            <button onclick="addTask()">Add Task</button>
+            <ul id="todo-list"></ul>
+        </div>
 
+        <!-- AI Query Section -->
+        <div class="query-container">
+            <input type="text" id="queryInput" placeholder="Ask the AI something...">
+            <button onclick="handleQuery()">Submit Query</button>
+        </div>
+        
+        <div class="response-container" id="aiResponse">
+            <!-- AI response will appear here -->
+        </div>
+
+        <!-- Links -->
         <div class="links" id="links-container">
             <a href="https://google.com" target="_blank"><i class="fas fa-globe"></i> Google</a>
             <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
@@ -266,113 +226,96 @@
         <button class="mode-btn" onclick="toggleTemperatureUnit()">Toggle °F/°C</button>
     </div>
 
-    <!-- AI Chat Widget -->
-    <div class="chat-widget" id="chat-widget">
-        <div class="chat-header" onclick="toggleChat()">
-            <span>AI Chat</span>
-            <i class="fas fa-chevron-up" id="chat-toggle-icon"></i>
-        </div>
-        <div class="chat-body" id="chat-body">
-            <!-- Chat Messages Go Here -->
-        </div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
-
     <script>
         let isLightMode = false;
         let isFahrenheit = true;
-        let chatOpen = true;
+        let tasks = [];
         const apiToken = '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'; // Replace with your Hugging Face API token
-        const model = 'gpt-2'; // You can use another model if you prefer
 
-        // Name Prompt
-        function askForName() {
-            let username = localStorage.getItem('username');
-            if (!username) {
-                username = prompt('What is your name?');
-                if (username) {
-                    localStorage.setItem('username', username);
-                } else {
-                    username = 'User';
-                }
+        // Quote of the Day
+        async function fetchQuote() {
+            try {
+                const response = await fetch('https://api.quotable.io/random');
+                const data = await response.json();
+                document.getElementById('quote').textContent = `"${data.content}" - ${data.author}`;
+            } catch (error) {
+                console.error('Error fetching quote:', error);
             }
-            document.getElementById('username').textContent = username;
-            updateGreeting();
+        }
+
+        // To-Do List
+        function addTask() {
+            const taskInput = document.getElementById('todo-input');
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                tasks.push(taskText);
+                taskInput.value = '';
+                renderTasks();
+            }
+        }
+
+        function removeTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const todoList = document.getElementById('todo-list');
+            todoList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${task}</span>
+                    <button onclick="removeTask(${index})">Delete</button>
+                `;
+                todoList.appendChild(li);
+            });
         }
 
         // Clock
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString();
-            updateGreeting();
         }
         setInterval(updateClock, 1000);
 
-        // Greeting Based on Time
-        function updateGreeting() {
-            const now = new Date();
-            const hour = now.getHours();
-            let greeting = '';
-            if (hour < 12) greeting = 'Good Morning';
-            else if (hour < 18) greeting = 'Good Afternoon';
-            else greeting = 'Good Evening';
-            document.getElementById('welcome-message').textContent = `${greeting}, ${document.getElementById('username').textContent}`;
-        }
+        // Fetching AI Response
+        async function handleQuery() {
+            const query = document.getElementById('queryInput').value;
+            const responseSection = document.getElementById('aiResponse');
 
-        // Search Functionality
-        function searchGoogle() {
-            const query = document.getElementById('search').value;
             if (query) {
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                const result = await queryAI(query);
+                responseSection.textContent = result.generated_text || "Something went wrong with the query.";
+            } else {
+                responseSection.textContent = "Please enter a query!";
             }
         }
 
-        // Weather API Integration
-        async function fetchWeather() {
-            const apiKey = '569b88f71e074621bbd165811251803'; // Replace with your actual API key
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const { latitude, longitude } = position.coords;
-                const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=3&aqi=no`;
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const temp = isFahrenheit ? data.current.temp_f : data.current.temp_c;
-                    const unit = isFahrenheit ? '°F' : '°C';
-                    document.getElementById('weather').textContent = `🌡️ ${temp}${unit} - ${data.current.condition.text}`;
-
-                    // Display Forecast
-                    const forecastContainer = document.getElementById('forecast');
-                    forecastContainer.innerHTML = '';
-                    data.forecast.forecastday.forEach(day => {
-                        const dayDiv = document.createElement('div');
-                        const maxTemp = isFahrenheit ? day.day.maxtemp_f : day.day.maxtemp_c;
-                        const minTemp = isFahrenheit ? day.day.mintemp_f : day.day.mintemp_c;
-                        dayDiv.innerHTML = `
-                            <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</p>
-                            <p>☀️ ${maxTemp}${unit} / 🌙 ${minTemp}${unit}</p>
-                            <p>${day.day.condition.text}</p>
-                        `;
-                        forecastContainer.appendChild(dayDiv);
-                    });
-                } catch (error) {
-                    console.error('Error fetching weather:', error);
-                    document.getElementById('weather').textContent = 'Unable to retrieve weather.';
-                }
-            }, () => {
-                document.getElementById('weather').textContent = 'Unable to retrieve weather.';
-            });
+        async function queryAI(inputText) {
+            try {
+                const response = await fetch("https://api-inference.huggingface.co/models/openai-community/gpt2", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ inputs: inputText })
+                });
+                const result = await response.json();
+                return result[0];
+            } catch (error) {
+                console.error("Error querying AI:", error);
+                return { generated_text: "Error occurred while fetching AI response." };
+            }
         }
-        fetchWeather();
 
         // Background Image Fetching from Pexels API
         async function changeBackground() {
             try {
                 const response = await fetch('https://api.pexels.com/v1/curated', {
                     headers: {
-                        'Authorization': '996gusySgGCKJvAImJC3qtoDNP1QxmHengUSqNTCJhST2iSZGuhRqvas' // Replace with your Pexels API key
+                        'Authorization': 'YOUR_PEXELS_API_KEY' // Replace with your Pexels API key
                     }
                 });
                 const data = await response.json();
@@ -395,78 +338,25 @@
             }
         }
 
-        // Toggle Chat Widget
-        function toggleChat() {
-            const chatBody = document.getElementById('chat-body');
-            const chatToggleIcon = document.getElementById('chat-toggle-icon');
-            if (chatOpen) {
-                chatBody.classList.add('hidden');
-                chatToggleIcon.classList.remove('fa-chevron-up');
-                chatToggleIcon.classList.add('fa-chevron-down');
-            } else {
-                chatBody.classList.remove('hidden');
-                chatToggleIcon.classList.remove('fa-chevron-down');
-                chatToggleIcon.classList.add('fa-chevron-up');
-            }
-            chatOpen = !chatOpen;
-        }
-
-        // Handle Key Press for Chat Input
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        // Send Message
-        async function sendMessage() {
-            const messageInput = document.getElementById('chat-input');
-            const messageText = messageInput.value.trim();
-            if (messageText) {
-                appendMessage('user', messageText);
-                messageInput.value = '';
-                await getAIResponse(messageText);
-            }
-        }
-
-        // Append Message to Chat
-        function appendMessage(sender, message) {
-            const chatBody = document.getElementById('chat-body');
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('chat-message', sender);
-            messageElement.textContent = message;
-            chatBody.appendChild(messageElement);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-
-        // Get AI Response from Hugging Face API
-        async function getAIResponse(userMessage) {
-            try {
-                const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inputs: userMessage
-                    })
-                });
-                const data = await response.json();
-                if (data && data.generated_text) {
-                    appendMessage('ai', data.generated_text);
+        // Ask for Name
+        function askForName() {
+            let username = localStorage.getItem('username');
+            if (!username) {
+                username = prompt('What is your name?');
+                if (username) {
+                    localStorage.setItem('username', username);
                 } else {
-                    appendMessage('ai', 'Sorry, I didn’t get that.');
+                    username = 'User';
                 }
-            } catch (error) {
-                console.error('Error fetching AI response:', error);
-                appendMessage('ai', 'Sorry, something went wrong.');
             }
+            document.getElementById('username').textContent = username;
         }
 
         askForName();
+        fetchQuote();
     </script>
 </body>
 
 </html>
+
 
