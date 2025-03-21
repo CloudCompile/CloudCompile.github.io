@@ -216,7 +216,7 @@
             <a href="https://google.com" target="_blank"><i class="fas fa-globe"></i> Google</a>
             <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             <a href="https://kick.com" target="_blank"><i class="fas fa-video"></i> Kick</a>
-            <a href="https://twitch.tv" target="_blank"><i class="fas fa-twitch"></i> Twitch</a>
+            <a href="https://twitch.tv" target="_blank"><i class="fas fa-video"></i> Twitch</a>
             
         </div>
         
@@ -252,7 +252,10 @@
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString();
             updateGreeting();
+          
         }
+      updateClock(); // Ensure the clock loads immediately
+
         setInterval(updateClock, 1000);
 
         // Greeting Based on Time
@@ -351,19 +354,23 @@
         }
 
         // Load Saved Preferences on Page Load
-        window.onload = function() {
-            askForName();
-            const savedBg = localStorage.getItem('bgImage');
-            if (savedBg) {
-                document.body.style.backgroundImage = `url('${savedBg}')`;
-            }
-            startBackgroundSlideshow();
+       window.onload = function() {
+    askForName();
+    const savedBg = localStorage.getItem('bgImage');
+    if (savedBg) {
+        document.body.style.backgroundImage = `url('${savedBg}')`;
+    }
+    startBackgroundSlideshow();
 
-            const savedMode = localStorage.getItem('lightMode');
-            if (savedMode === 'true') {
-                isLightMode = true;
-                document.body.classList.add('light-mode');
-            }
+    const savedMode = localStorage.getItem('lightMode');
+    if (savedMode === 'true') {
+        isLightMode = true;
+        document.body.classList.add('light-mode');
+    }
+
+    updateClock(); // Ensure clock initializes immediately
+};
+
 
     </script>
 </body>
