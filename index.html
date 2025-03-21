@@ -216,7 +216,8 @@
             <a href="https://google.com" target="_blank"><i class="fas fa-globe"></i> Google</a>
             <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             <a href="https://kick.com" target="_blank"><i class="fas fa-video"></i> Kick</a>
-            <a href="https://dashboard.kick.com" target="_blank"><i class="fas fa-chart-line"></i> Kick Dashboard</a>
+            <a href="https://twitch.tv" target="_blank"><i class="fas fa-twitch"></i> Twitch</a>
+            
         </div>
         
         <button class="bg-btn" onclick="changeBackground()">Change Background</button>
@@ -224,20 +225,7 @@
         <button class="mode-btn" onclick="toggleTemperatureUnit()">Toggle °F/°C</button>
     </div>
 
-    <!-- AI Chat Widget -->
-    <div class="chat-widget" id="chat-widget">
-        <div class="chat-header" onclick="toggleChat()">
-            <span>AI Chat</span>
-            <i class="fas fa-chevron-up" id="chat-toggle-icon"></i>
-        </div>
-        <div class="chat-body" id="chat-body">
-            <!-- Chat Messages Go Here -->
-        </div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
+
 
     <script>
         let isLightMode = false;
@@ -288,7 +276,7 @@
 
         // Weather API Integration
         async function fetchWeather() {
-            const apiKey = 'YOUR_WEATHER_API_KEY'; // Replace with your actual API key
+            const apiKey = '569b88f71e074621bbd165811251803'; // Replace with your actual API key
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
                 const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=3&aqi=no`;
@@ -331,7 +319,7 @@
 
         // Background Change with Pexels API
         async function changeBackground() {
-            const pexelsApiKey = 'YOUR_PEXELS_API_KEY'; // Replace with your actual API key
+            const pexelsApiKey = '996gusySgGCKJvAImJC3qtoDNP1QxmHengUSqNTCJhST2iSZGuhRqvas'; // Replace with your actual API key
             const query = ['nature', 'city', 'abstract', 'space'][Math.floor(Math.random() * 4)];
             const url = `https://api.pexels.com/v1/search?query=${query}&per_page=1&page=1`;
             
@@ -377,89 +365,6 @@
                 document.body.classList.add('light-mode');
             }
 
-            loadChatHistory();
-        };
-
-        // Chat Functions
-        function toggleChat() {
-            chatOpen = !chatOpen;
-            const chatBody = document.getElementById('chat-body');
-            const icon = document.getElementById('chat-toggle-icon');
-            chatBody.classList.toggle('hidden', !chatOpen);
-            icon.classList.toggle('fa-chevron-up', chatOpen);
-            icon.classList.toggle('fa-chevron-down', !chatOpen);
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            appendMessage(message, 'user');
-            input.value = '';
-
-            // Call AI API
-            getAIResponse(message);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        function appendMessage(message, sender) {
-            const chatBody = document.getElementById('chat-body');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${sender}`;
-            messageDiv.textContent = message;
-            chatBody.appendChild(messageDiv);
-            chatBody.scrollTop = chatBody.scrollHeight;
-
-            // Save chat history
-            saveChatHistory();
-        }
-
-        async function getAIResponse(userMessage) {
-            const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your OpenAI API key
-            const apiUrl = 'https://api.openai.com/v1/chat/completions';
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
-                        messages: [{ role: 'user', content: userMessage }]
-                    })
-                });
-
-                const data = await response.json();
-                const aiMessage = data.choices[0].message.content.trim();
-                appendMessage(aiMessage, 'ai');
-            } catch (error) {
-                console.error('Error fetching AI response:', error);
-                appendMessage('Sorry, I encountered an error. Please try again later.', 'ai');
-            }
-        }
-
-        function saveChatHistory() {
-            const chatBody = document.getElementById('chat-body');
-            const messages = Array.from(chatBody.children).map(el => ({
-                sender: el.classList.contains('user') ? 'user' : 'ai',
-                text: el.textContent
-            }));
-            localStorage.setItem('chatHistory', JSON.stringify(messages));
-        }
-
-        function loadChatHistory() {
-            const chatBody = document.getElementById('chat-body');
-            const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-            chatHistory.forEach(msg => appendMessage(msg.text, msg.sender));
-        }
     </script>
 </body>
 </html>
