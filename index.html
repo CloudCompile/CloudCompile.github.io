@@ -229,22 +229,7 @@
 
     <script>
         let isLightMode = false;
-        let isFahrenheit = true;
-        let chatOpen = true;
-
-        // Name Prompt
-        function askForName() {
-            let username = localStorage.getItem('username');
-            if (!username) {
-                username = prompt('What is your name?');
-                if (username) {
-                    localStorage.setItem('username', username);
-                } else {
-                    username = 'User';
-                }
-            }
-            document.getElementById('username').textContent = username;
-            updateGreeting();
+        let isFahrenheit = true
         }
 
         // Clock
@@ -277,18 +262,27 @@
             }
         }
 
-        // Weather API Integration
+        // Weather api integration
         async function fetchWeather() {
-            const apiKey = '569b88f71e074621bbd165811251803'; // Replace with your actual API key
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const { latitude, longitude } = position.coords;
-                const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${latitude},${longitude}&days=3&aqi=no`;
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const temp = isFahrenheit ? data.current.temp_f : data.current.temp_c;
-                    const unit = isFahrenheit ? '°F' : '°C';
-                    document.getElementById('weather').textContent = `🌡️ ${temp}${unit} - ${data.current.condition.text}`;
+    const apiKey = '569b88f71e074621bbd165811251803'; // Replace with your actual API key
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=auto:ip&days=3&aqi=no`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const isFahrenheit = true; // Change to false if you want Celsius
+        const temp = isFahrenheit ? data.current.temp_f : data.current.temp_c;
+        const unit = isFahrenheit ? '°F' : '°C';
+        document.getElementById('weather').textContent = `🌡️ ${temp}${unit} - ${data.current.condition.text}`;
+    } catch (error) {
+        console.error("Failed to fetch weather data:", error);
+        document.getElementById('weather').textContent = "Failed to load weather data.";
+    }
+}
+
+// Call the function when the page loads
+fetchWeather();
+
 
                     // Display Forecast
                     const forecastContainer = document.getElementById('forecast');
