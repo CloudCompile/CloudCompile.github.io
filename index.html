@@ -102,7 +102,7 @@
         .links a:hover {
             color: white;
         }
-        .bg-btn, .mode-btn {
+        .bg-btn, .mode-btn, .name-btn {
             margin-top: 10px;
             padding: 10px 20px;
             border: none;
@@ -112,80 +112,10 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        .bg-btn:hover, .mode-btn:hover {
+        .bg-btn:hover, .mode-btn:hover, .name-btn:hover {
             background: cyan;
             color: black;
         }
-
-        /* Chat Widget */
-        .chat-widget {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-        .chat-header {
-            background: #333;
-            color: white;
-            padding: 10px;
-            font-size: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-        .chat-header i {
-            font-size: 1.2rem;
-        }
-        .chat-body {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            max-height: 300px;
-        }
-        .chat-body.hidden {
-            display: none;
-        }
-        .chat-message {
-            margin: 10px 0;
-        }
-        .chat-message.user {
-            text-align: right;
-            color: cyan;
-        }
-        .chat-message.ai {
-            text-align: left;
-            color: #ccc;
-        }
-        .chat-input {
-            display: flex;
-            border-top: 1px solid #444;
-        }
-        .chat-input input {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            color: white;
-        }
-        .chat-input button {
-            padding: 10px 20px;
-            background: cyan;
-            border: none;
-            color: black;
-            cursor: pointer;
-        }
-        .chat-input button:hover {
-            background: white;
-        }
-
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -203,42 +133,32 @@
         <div class="clock-container">
             <div class="clock" id="clock">00:00:00</div>
         </div>
-        
         <div class="search-bar">
             <input type="text" id="search" placeholder="Search Google...">
             <button onclick="searchGoogle()">Go</button>
         </div>
-        
         <div class="weather" id="weather">Loading weather...</div>
         <div class="forecast" id="forecast"></div>
-        
         <div class="links" id="links-container">
             <a href="https://google.com" target="_blank"><i class="fas fa-globe"></i> Google</a>
             <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
-            
         </div>
-        
         <button class="bg-btn" onclick="changeBackground()">Change Background</button>
         <button class="mode-btn" onclick="toggleMode()">Toggle Light/Dark Mode</button>
         <button class="mode-btn" onclick="toggleTemperatureUnit()">Toggle °F/°C</button>
+        <button class="name-btn" onclick="changeName()">Change Name</button>
     </div>
-
-
-
     <script>
         let isLightMode = false;
-        let isFahrenheit = true
-        }
+        let isFahrenheit = true;
 
         // Clock
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString();
             updateGreeting();
-          
         }
-      updateClock(); // Ensure the clock loads immediately
-
+        updateClock(); // Ensure the clock loads immediately
         setInterval(updateClock, 1000);
 
         // Greeting Based on Time
@@ -272,12 +192,8 @@
                     const temp = isFahrenheit ? data.current.temp_f : data.current.temp_c;
                     const unit = isFahrenheit ? '°F' : '°C';
                     document.getElementById('weather').textContent = `🌡️ ${temp}${unit} - ${data.current.condition.text}`;
-
-
                     // Call the function when the page loads
-fetchWeather();
-
-
+                    fetchWeather();
                     // Display Forecast
                     const forecastContainer = document.getElementById('forecast');
                     forecastContainer.innerHTML = '';
@@ -299,8 +215,8 @@ fetchWeather();
             }, () => {
                 document.getElementById('weather').textContent = 'Unable to retrieve weather.';
             });
-        
-        fetchWeather();
+            fetchWeather();
+        }
 
         // Temperature Unit Toggle
         function toggleTemperatureUnit() {
@@ -308,12 +224,22 @@ fetchWeather();
             fetchWeather();
         }
 
+        // Change Name Functionality
+        function changeName() {
+            const newName = prompt("Enter your new name:");
+            if (newName && newName.trim() !== "") {
+                document.getElementById('username').textContent = newName.trim();
+                updateGreeting(); // Update the greeting with the new name
+            } else {
+                alert("Name cannot be empty!");
+            }
+        }
+
         // Background Change with Pexels API
         async function changeBackground() {
             const pexelsApiKey = '996gusySgGCKJvAImJC3qtoDNP1QxmHengUSqNTCJhST2iSZGuhRqvas'; // Replace with your actual API key
             const query = ['nature', 'city', 'abstract', 'space'][Math.floor(Math.random() * 4)];
             const url = `https://api.pexels.com/v1/search?query=${query}&per_page=1&page=1`;
-            
             try {
                 const response = await fetch(url, {
                     headers: {
@@ -342,24 +268,20 @@ fetchWeather();
         }
 
         // Load Saved Preferences on Page Load
-       window.onload = function() {
-    askForName();
-    const savedBg = localStorage.getItem('bgImage');
-    if (savedBg) {
-        document.body.style.backgroundImage = `url('${savedBg}')`;
-    }
-    startBackgroundSlideshow();
-
-    const savedMode = localStorage.getItem('lightMode');
-    if (savedMode === 'true') {
-        isLightMode = true;
-        document.body.classList.add('light-mode');
-    }
-
-    updateClock(); // Ensure clock initializes immediately
-};
-
-
+        window.onload = function() {
+            askForName();
+            const savedBg = localStorage.getItem('bgImage');
+            if (savedBg) {
+                document.body.style.backgroundImage = `url('${savedBg}')`;
+            }
+            startBackgroundSlideshow();
+            const savedMode = localStorage.getItem('lightMode');
+            if (savedMode === 'true') {
+                isLightMode = true;
+                document.body.classList.add('light-mode');
+            }
+            updateClock(); // Ensure clock initializes immediately
+        };
     </script>
 </body>
 </html>
