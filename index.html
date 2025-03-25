@@ -273,7 +273,8 @@
                     const unit = isFahrenheit ? '°F' : '°C';
                     document.getElementById('weather').textContent = `🌡️ ${temp}${unit} - ${data.current.condition.text}`;
 
-// Call the function when the page loads
+
+                    // Call the function when the page loads
 fetchWeather();
 
 
@@ -298,7 +299,7 @@ fetchWeather();
             }, () => {
                 document.getElementById('weather').textContent = 'Unable to retrieve weather.';
             });
-        }
+        
         fetchWeather();
 
         // Temperature Unit Toggle
