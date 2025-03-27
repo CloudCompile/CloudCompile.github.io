@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CC Web IDE</title>
+    <title>Web IDE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
@@ -15,42 +15,22 @@
             font-family: Arial, sans-serif;
         }
         .sidebar {
-            width: 200px;
+            width: 60px;
             background: #252526;
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            align-items: center;
+            padding: 10px 0;
         }
-        .file-explorer {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        .file {
-            padding: 5px;
+        .sidebar i {
+            font-size: 24px;
+            margin: 20px 0;
             cursor: pointer;
-        }
-        .file:hover {
-            background: #333;
         }
         .editor-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-        }
-        .tabs {
-            display: flex;
-            background: #333;
-            padding: 5px;
-        }
-        .tab {
-            padding: 5px 10px;
-            cursor: pointer;
-            background: #444;
-            margin-right: 5px;
-            border-radius: 3px;
-        }
-        .tab.active {
-            background: #007acc;
         }
         #editor {
             flex-grow: 1;
@@ -62,19 +42,36 @@
             color: black;
             padding: 10px;
         }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            background: #333;
+        }
+        .toolbar button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .toolbar button:hover {
+            background: #005f99;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h3>Files</h3>
-        <div class="file-explorer" id="fileExplorer">
-            <div class="file" onclick="openFile('index.html')">index.html</div>
-            <div class="file" onclick="openFile('style.css')">style.css</div>
-            <div class="file" onclick="openFile('script.js')">script.js</div>
-        </div>
+        <i class="fas fa-file"></i>
+        <i class="fas fa-folder"></i>
+        <i class="fas fa-cog"></i>
     </div>
     <div class="editor-container">
-        <div class="tabs" id="tabs"></div>
+        <div class="toolbar">
+            <button onclick="downloadCode()">Download</button>
+            <button onclick="clearEditor()">Clear</button>
+        </div>
         <div id="editor">// Write your code here</div>
         <iframe class="preview"></iframe>
     </div>
@@ -82,39 +79,33 @@
     <script>
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
         require(["vs/editor/editor.main"], function () {
-            var editors = {};
-            var activeFile = "index.html";
-            var files = {
-                "index.html": "<html>\n    <head>\n        <title>Preview</title>\n    </head>\n    <body>\n        <h1>Hello, Web IDE!</h1>\n    </body>\n</html>",
-                "style.css": "body { background-color: lightblue; }",
-                "script.js": "console.log('Hello, Web IDE!');"
+            var editor = monaco.editor.create(document.getElementById('editor'), {
+                value: "<html>\n    <head>\n        <title>Preview</title>\n    </head>\n    <body>\n        <h1>Hello, Web IDE!</h1>\n    </body>\n</html>",
+                language: "html",
+                theme: "vs-dark"
+            });
+
+            function updatePreview() {
+                document.querySelector(".preview").srcdoc = editor.getValue();
+            }
+
+            editor.onDidChangeModelContent(updatePreview);
+            updatePreview();
+
+            window.downloadCode = function() {
+                const blob = new Blob([editor.getValue()], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'index.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             };
 
-            function openFile(filename) {
-                if (!editors[filename]) {
-                    editors[filename] = monaco.editor.create(document.getElementById('editor'), {
-                        value: files[filename],
-                        language: filename.endsWith(".js") ? "javascript" : filename.endsWith(".css") ? "css" : "html",
-                        theme: "vs-dark"
-                    });
-                }
-                activeFile = filename;
-                updateTabs();
-            }
-
-            function updateTabs() {
-                var tabsContainer = document.getElementById("tabs");
-                tabsContainer.innerHTML = "";
-                Object.keys(editors).forEach(filename => {
-                    var tab = document.createElement("div");
-                    tab.className = "tab" + (filename === activeFile ? " active" : "");
-                    tab.innerText = filename;
-                    tab.onclick = () => openFile(filename);
-                    tabsContainer.appendChild(tab);
-                });
-            }
-
-            openFile("index.html");
+            window.clearEditor = function() {
+                editor.setValue("<html>\n    <head>\n        <title>Preview</title>\n    </head>\n    <body>\n        <h1>Hello, Web IDE!</h1>\n    </body>\n</html>");
+                updatePreview();
+            };
         });
     </script>
 </body>
