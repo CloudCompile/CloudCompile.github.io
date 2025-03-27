@@ -101,14 +101,51 @@
       word-wrap: break-word;
       color: #ff8080;
     }
+    /* File Switcher Modal */
+    #fileSwitcherModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #fileSwitcherModal .modal-content {
+      background: #252526;
+      padding: 20px;
+      border-radius: 5px;
+      width: 300px;
+      max-height: 80%;
+      overflow-y: auto;
+    }
+    #fileSwitcherModal h2 {
+      margin-top: 0;
+    }
+    #fileSwitcherModal ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #fileSwitcherModal ul li {
+      padding: 8px;
+      border-bottom: 1px solid #333;
+      cursor: pointer;
+    }
+    #fileSwitcherModal ul li:hover {
+      background-color: #1e1e1e;
+    }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
+  <!-- Sidebar with icons -->
   <div class="sidebar">
-    <i class="fas fa-file"></i>
+    <!-- Clicking the file icon opens the File Switcher -->
+    <i class="fas fa-file" onclick="openFileSwitcher()"></i>
     <i class="fas fa-folder"></i>
-    <!-- Clicking the cog icon takes you to the separate Settings page -->
+    <!-- The settings icon navigates to the separate settings page -->
     <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
   </div>
 
@@ -119,7 +156,7 @@
       <button id="cssTab">CSS</button>
       <button id="jsTab">JS</button>
     </div>
-    <!-- Toolbar with extra features -->
+    <!-- Toolbar for extra features -->
     <div class="toolbar">
       <button onclick="downloadCode()">Download</button>
       <button onclick="saveCode()">Save</button>
@@ -128,7 +165,7 @@
     </div>
     <!-- Monaco Editor container -->
     <div id="editor"></div>
-    <!-- Live preview of the combined output -->
+    <!-- Live preview pane -->
     <iframe class="preview"></iframe>
     <!-- Console for error logging -->
     <div class="console">
@@ -137,14 +174,35 @@
     </div>
   </div>
 
+  <!-- File Switcher Modal -->
+  <div id="fileSwitcherModal">
+    <div class="modal-content">
+      <h2>File Switcher</h2>
+      <ul id="projectList"></ul>
+      <div style="margin-top:10px; text-align: center;">
+        <button onclick="createNewProject()">New Project</button>
+        <button onclick="closeFileSwitcher()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Monaco Editor loader -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.js"></script>
   <script>
-    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
-    require(["vs/editor/editor.main"], function () {
-      
-      // Retrieve saved code or default templates.
-      const initialHtml = localStorage.getItem("code-html") || `<!DOCTYPE html>
+    /********************************************************************
+     * Global Project Management
+     ********************************************************************/
+    // Use a "currentProject" key in localStorage to track the loaded project.
+    var currentProject = localStorage.getItem("currentProject") || "default";
+    // Initialize the project list if necessary.
+    let projectList = JSON.parse(localStorage.getItem("projectList") || '[]');
+    if (!projectList.includes("default")) {
+      projectList.push("default");
+      localStorage.setItem("projectList", JSON.stringify(projectList));
+    }
+
+    // Default templates for a new project.
+    const defaultHtml = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8">
@@ -154,7 +212,7 @@
     <h1>Hello, Web IDE!</h1>
   </body>
 </html>`;
-      const initialCss = localStorage.getItem("code-css") || `body {
+    const defaultCss = `body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
@@ -164,22 +222,100 @@
 h1 {
   color: #007acc;
 }`;
-      const initialJs = localStorage.getItem("code-js") || `console.log("Welcome to Web IDE!");`;
+    const defaultJs = `console.log("Welcome to Web IDE!");`;
 
-      // Create separate Monaco models for each language.
-      var htmlModel = monaco.editor.createModel(initialHtml, "html", monaco.Uri.parse("inmemory://model/html"));
-      var cssModel = monaco.editor.createModel(initialCss, "css", monaco.Uri.parse("inmemory://model/css"));
-      var jsModel = monaco.editor.createModel(initialJs, "javascript", monaco.Uri.parse("inmemory://model/js"));
+    // Loads a project’s code (or defaults if not yet set) and updates the editor.
+    function loadProject(projName) {
+      currentProject = projName;
+      localStorage.setItem("currentProject", currentProject);
+      var projHtml = localStorage.getItem("project-" + currentProject + "-html") || defaultHtml;
+      var projCss = localStorage.getItem("project-" + currentProject + "-css") || defaultCss;
+      var projJs = localStorage.getItem("project-" + currentProject + "-js") || defaultJs;
+      htmlModel.setValue(projHtml);
+      cssModel.setValue(projCss);
+      jsModel.setValue(projJs);
+      runCode();
+      alert("Loaded project: " + currentProject);
+    }
 
-      // Retrieve IDE settings from localStorage, with defaults.
+    // Saves the current code to the active project.
+    function saveProject() {
+      localStorage.setItem("project-" + currentProject + "-html", htmlModel.getValue());
+      localStorage.setItem("project-" + currentProject + "-css", cssModel.getValue());
+      localStorage.setItem("project-" + currentProject + "-js", jsModel.getValue());
+      alert("Project '" + currentProject + "' saved.");
+    }
+
+    // Creates a new project.
+    function createNewProject() {
+      let projName = prompt("Enter new project name:");
+      if (projName) {
+        let plist = JSON.parse(localStorage.getItem("projectList") || '[]');
+        if (plist.includes(projName)) {
+          alert("Project already exists.");
+        } else {
+          plist.push(projName);
+          localStorage.setItem("projectList", JSON.stringify(plist));
+          // Initialize with default content.
+          localStorage.setItem("project-" + projName + "-html", defaultHtml);
+          localStorage.setItem("project-" + projName + "-css", defaultCss);
+          localStorage.setItem("project-" + projName + "-js", defaultJs);
+          updateProjectList();
+          loadProject(projName);
+        }
+      }
+    }
+
+    // Populates the file switcher’s list of projects.
+    function updateProjectList() {
+      let plist = JSON.parse(localStorage.getItem("projectList") || '[]');
+      let ul = document.getElementById("projectList");
+      ul.innerHTML = "";
+      plist.forEach(function(proj) {
+        let li = document.createElement("li");
+        li.textContent = proj;
+        li.onclick = function() {
+          loadProject(proj);
+          closeFileSwitcher();
+        };
+        ul.appendChild(li);
+      });
+    }
+
+    function openFileSwitcher() {
+      updateProjectList();
+      document.getElementById("fileSwitcherModal").style.display = "flex";
+    }
+
+    function closeFileSwitcher() {
+      document.getElementById("fileSwitcherModal").style.display = "none";
+    }
+
+    /********************************************************************
+     * Monaco & Editor Setup
+     ********************************************************************/
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
+    var htmlModel, cssModel, jsModel, editor;
+    require(["vs/editor/editor.main"], function () {
+      // Retrieve IDE settings from localStorage (or use defaults).
       var ideTheme = localStorage.getItem("ideTheme") || "vs-dark";
       var editorFontSize = parseInt(localStorage.getItem("editorFontSize")) || 14;
       var editorTabSize = parseInt(localStorage.getItem("editorTabSize")) || 4;
       var wordWrap = localStorage.getItem("wordWrap") === "true" ? "on" : "off";
       var autoRunDelay = parseInt(localStorage.getItem("autoRunDelay")) || 500;
 
-      // Create the Monaco Editor instance with the HTML model as default.
-      var editor = monaco.editor.create(document.getElementById('editor'), {
+      // Load current project’s code (or defaults if missing).
+      var projHtml = localStorage.getItem("project-" + currentProject + "-html") || defaultHtml;
+      var projCss = localStorage.getItem("project-" + currentProject + "-css") || defaultCss;
+      var projJs = localStorage.getItem("project-" + currentProject + "-js") || defaultJs;
+
+      // Create separate Monaco models for HTML, CSS, and JS.
+      htmlModel = monaco.editor.createModel(projHtml, "html", monaco.Uri.parse("inmemory://model/html"));
+      cssModel = monaco.editor.createModel(projCss, "css", monaco.Uri.parse("inmemory://model/css"));
+      jsModel = monaco.editor.createModel(projJs, "javascript", monaco.Uri.parse("inmemory://model/js"));
+
+      // Create the editor using the HTML model by default.
+      editor = monaco.editor.create(document.getElementById('editor'), {
         model: htmlModel,
         language: "html",
         theme: ideTheme,
@@ -189,9 +325,8 @@ h1 {
         automaticLayout: true
       });
 
-      // Function to combine code and update the preview.
+      // Combines HTML, CSS, and JS into a single output and displays it.
       function runCode() {
-        // Clear previous errors.
         document.getElementById("consoleOutput").innerText = "";
         const htmlContent = htmlModel.getValue();
         const cssContent = `<style>${cssModel.getValue()}</style>`;
@@ -205,7 +340,6 @@ h1 {
             window.parent.handleIframeError(e.message, e.fileName, e.lineNumber, e.columnNumber, e);
           }
         <\/script>`;
-        
         let combined = htmlContent;
         if (combined.includes("</head>")) {
           combined = combined.replace("</head>", cssContent + "</head>");
@@ -217,18 +351,16 @@ h1 {
         } else {
           combined += jsContent;
         }
-        
         document.querySelector(".preview").srcdoc = combined;
       }
 
-      // Expose error handler for iframe errors.
+      // Expose error handling for runtime errors in the preview.
       window.handleIframeError = function(message, source, lineno, colno, error) {
         const consoleOutput = document.getElementById("consoleOutput");
         const errMsg = `Error: ${message} (Line: ${lineno}, Column: ${colno})\n`;
         consoleOutput.innerText += errMsg;
       };
 
-      // Setup auto-run with the specified delay.
       let timeout;
       function scheduleRun() {
         clearTimeout(timeout);
@@ -253,19 +385,19 @@ h1 {
         document.getElementById("htmlTab").classList.remove("active");
         document.getElementById("cssTab").classList.remove("active");
         document.getElementById("jsTab").classList.remove("active");
-        if(lang === "html") {
+        if (lang === "html") {
           editor.setModel(htmlModel);
           document.getElementById("htmlTab").classList.add("active");
-        } else if(lang === "css") {
+        } else if (lang === "css") {
           editor.setModel(cssModel);
           document.getElementById("cssTab").classList.add("active");
-        } else if(lang === "js") {
+        } else if (lang === "js") {
           editor.setModel(jsModel);
           document.getElementById("jsTab").classList.add("active");
         }
       }
 
-      // Download combined HTML content as an index.html file.
+      // Download the contents of the HTML editor as an index.html file.
       window.downloadCode = function() {
         const blob = new Blob([htmlModel.getValue()], { type: 'text/html' });
         const a = document.createElement('a');
@@ -276,23 +408,18 @@ h1 {
         document.body.removeChild(a);
       };
 
-      // Save current code to localStorage.
+      // Save changes back to the currently loaded project.
       window.saveCode = function() {
-        localStorage.setItem("code-html", htmlModel.getValue());
-        localStorage.setItem("code-css", cssModel.getValue());
-        localStorage.setItem("code-js", jsModel.getValue());
-        alert("Code saved to local storage.");
+        saveProject();
       };
 
-      // Clear the editor by resetting to default templates.
+      // Clear the current project by resetting to the default templates.
       window.clearEditor = function() {
-        htmlModel.setValue(initialHtml);
-        cssModel.setValue(initialCss);
-        jsModel.setValue(initialJs);
-        setActiveTab("html");
+        htmlModel.setValue(defaultHtml);
+        cssModel.setValue(defaultCss);
+        jsModel.setValue(defaultJs);
         runCode();
       };
-
     });
   </script>
 </body>
