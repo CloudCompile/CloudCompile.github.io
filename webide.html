@@ -1,112 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web IDE</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            display: flex;
-            height: 100vh;
-            margin: 0;
-            background-color: #1e1e1e;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        .sidebar {
-            width: 60px;
-            background: #252526;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px 0;
-        }
-        .sidebar i {
-            font-size: 24px;
-            margin: 20px 0;
-            cursor: pointer;
-        }
-        .editor-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        #editor {
-            flex-grow: 1;
-            background: #1e1e1e;
-        }
-        .preview {
-            height: 40%;
-            background: white;
-            color: black;
-            padding: 10px;
-        }
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px;
-            background: #333;
-        }
-        .toolbar button {
-            background: #007acc;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .toolbar button:hover {
-            background: #005f99;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web IDE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Global layout & colors */
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      background-color: #1e1e1e;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    /* Sidebar styling */
+    .sidebar {
+      width: 60px;
+      background: #252526;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+    }
+    .sidebar i {
+      font-size: 24px;
+      margin: 20px 0;
+      cursor: pointer;
+    }
+    /* Editor container covers the remaining space */
+    .editor-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Tab headers for switching between HTML, CSS, JS */
+    .editor-tabs {
+      background: #333;
+      display: flex;
+    }
+    .editor-tabs button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #252526;
+      color: white;
+      cursor: pointer;
+      outline: none;
+    }
+    .editor-tabs button.active {
+      background: #1e1e1e;
+      border-bottom: 2px solid #007acc;
+    }
+    /* Toolbar for download, save, clear & run */
+    .toolbar {
+      display: flex;
+      padding: 5px;
+      background: #333;
+      gap: 8px;
+    }
+    .toolbar button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .toolbar button:hover {
+      background: #005f99;
+    }
+    /* The Monaco editor container */
+    #editor {
+      flex-grow: 1;
+    }
+    /* Live preview pane */
+    .preview {
+      height: 40%;
+      border: none;
+      background: white;
+    }
+    /* Console for error logging */
+    .console {
+      height: 15%;
+      background: #1e1e1e;
+      border-top: 1px solid #333;
+      padding: 5px;
+      overflow-y: auto;
+    }
+    .console h4 {
+      margin: 0;
+      font-size: 14px;
+      color: #aaa;
+    }
+    .console pre {
+      margin: 0;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: #ff8080;
+    }
+  </style>
 </head>
 <body>
-    <div class="sidebar">
-        <i class="fas fa-file"></i>
-        <i class="fas fa-folder"></i>
-        <i class="fas fa-cog"></i>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <i class="fas fa-file"></i>
+    <i class="fas fa-folder"></i>
+    <!-- Clicking the cog icon takes you to the separate Settings page -->
+    <i class="fas fa-cog" onclick="location.href='settings.html'"></i>
+  </div>
+
+  <div class="editor-container">
+    <!-- Tabs for HTML, CSS, JS -->
+    <div class="editor-tabs">
+      <button id="htmlTab" class="active">HTML</button>
+      <button id="cssTab">CSS</button>
+      <button id="jsTab">JS</button>
     </div>
-    <div class="editor-container">
-        <div class="toolbar">
-            <button onclick="downloadCode()">Download</button>
-            <button onclick="clearEditor()">Clear</button>
-        </div>
-        <div id="editor">// Write your code here</div>
-        <iframe class="preview"></iframe>
+    <!-- Toolbar with extra features -->
+    <div class="toolbar">
+      <button onclick="downloadCode()">Download</button>
+      <button onclick="saveCode()">Save</button>
+      <button onclick="clearEditor()">Clear</button>
+      <button onclick="runCode()">Run</button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.js"></script>
-    <script>
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
-        require(["vs/editor/editor.main"], function () {
-            var editor = monaco.editor.create(document.getElementById('editor'), {
-                value: "<html>\n    <head>\n        <title>Preview</title>\n    </head>\n    <body>\n        <h1>Hello, Web IDE!</h1>\n    </body>\n</html>",
-                language: "html",
-                theme: "vs-dark"
-            });
+    <!-- Monaco Editor container -->
+    <div id="editor"></div>
+    <!-- Live preview of the combined output -->
+    <iframe class="preview"></iframe>
+    <!-- Console for error logging -->
+    <div class="console">
+      <h4>Console</h4>
+      <pre id="consoleOutput"></pre>
+    </div>
+  </div>
 
-            function updatePreview() {
-                document.querySelector(".preview").srcdoc = editor.getValue();
-            }
+  <!-- Monaco Editor loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.js"></script>
+  <script>
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' }});
+    require(["vs/editor/editor.main"], function () {
+      
+      // Retrieve saved code or default templates.
+      const initialHtml = localStorage.getItem("code-html") || `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Preview</title>
+  </head>
+  <body>
+    <h1>Hello, Web IDE!</h1>
+  </body>
+</html>`;
+      const initialCss = localStorage.getItem("code-css") || `body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #fff;
+  color: #000;
+}
+h1 {
+  color: #007acc;
+}`;
+      const initialJs = localStorage.getItem("code-js") || `console.log("Welcome to Web IDE!");`;
 
-            editor.onDidChangeModelContent(updatePreview);
-            updatePreview();
+      // Create separate Monaco models for each language.
+      var htmlModel = monaco.editor.createModel(initialHtml, "html", monaco.Uri.parse("inmemory://model/html"));
+      var cssModel = monaco.editor.createModel(initialCss, "css", monaco.Uri.parse("inmemory://model/css"));
+      var jsModel = monaco.editor.createModel(initialJs, "javascript", monaco.Uri.parse("inmemory://model/js"));
 
-            window.downloadCode = function() {
-                const blob = new Blob([editor.getValue()], { type: 'text/html' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'index.html';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            };
+      // Retrieve IDE settings from localStorage, with defaults.
+      var ideTheme = localStorage.getItem("ideTheme") || "vs-dark";
+      var editorFontSize = parseInt(localStorage.getItem("editorFontSize")) || 14;
+      var editorTabSize = parseInt(localStorage.getItem("editorTabSize")) || 4;
+      var wordWrap = localStorage.getItem("wordWrap") === "true" ? "on" : "off";
+      var autoRunDelay = parseInt(localStorage.getItem("autoRunDelay")) || 500;
 
-            window.clearEditor = function() {
-                editor.setValue("<html>\n    <head>\n        <title>Preview</title>\n    </head>\n    <body>\n        <h1>Hello, Web IDE!</h1>\n    </body>\n</html>");
-                updatePreview();
-            };
-        });
-    </script>
+      // Create the Monaco Editor instance with the HTML model as default.
+      var editor = monaco.editor.create(document.getElementById('editor'), {
+        model: htmlModel,
+        language: "html",
+        theme: ideTheme,
+        fontSize: editorFontSize,
+        tabSize: editorTabSize,
+        wordWrap: wordWrap,
+        automaticLayout: true
+      });
+
+      // Function to combine code and update the preview.
+      function runCode() {
+        // Clear previous errors.
+        document.getElementById("consoleOutput").innerText = "";
+        const htmlContent = htmlModel.getValue();
+        const cssContent = `<style>${cssModel.getValue()}</style>`;
+        const jsContent = `<script>
+          window.onerror = function(message, source, lineno, colno, error) {
+            window.parent.handleIframeError(message, source, lineno, colno, error);
+          };
+          try {
+            ${jsModel.getValue()}
+          } catch(e) {
+            window.parent.handleIframeError(e.message, e.fileName, e.lineNumber, e.columnNumber, e);
+          }
+        <\/script>`;
+        
+        let combined = htmlContent;
+        if (combined.includes("</head>")) {
+          combined = combined.replace("</head>", cssContent + "</head>");
+        } else {
+          combined = cssContent + combined;
+        }
+        if (combined.includes("</body>")) {
+          combined = combined.replace("</body>", jsContent + "</body>");
+        } else {
+          combined += jsContent;
+        }
+        
+        document.querySelector(".preview").srcdoc = combined;
+      }
+
+      // Expose error handler for iframe errors.
+      window.handleIframeError = function(message, source, lineno, colno, error) {
+        const consoleOutput = document.getElementById("consoleOutput");
+        const errMsg = `Error: ${message} (Line: ${lineno}, Column: ${colno})\n`;
+        consoleOutput.innerText += errMsg;
+      };
+
+      // Setup auto-run with the specified delay.
+      let timeout;
+      function scheduleRun() {
+        clearTimeout(timeout);
+        timeout = setTimeout(runCode, autoRunDelay);
+      }
+      htmlModel.onDidChangeContent(scheduleRun);
+      cssModel.onDidChangeContent(scheduleRun);
+      jsModel.onDidChangeContent(scheduleRun);
+      runCode();
+
+      // Tab switching logic.
+      document.getElementById("htmlTab").addEventListener("click", function() {
+        setActiveTab("html");
+      });
+      document.getElementById("cssTab").addEventListener("click", function() {
+        setActiveTab("css");
+      });
+      document.getElementById("jsTab").addEventListener("click", function() {
+        setActiveTab("js");
+      });
+      function setActiveTab(lang) {
+        document.getElementById("htmlTab").classList.remove("active");
+        document.getElementById("cssTab").classList.remove("active");
+        document.getElementById("jsTab").classList.remove("active");
+        if(lang === "html") {
+          editor.setModel(htmlModel);
+          document.getElementById("htmlTab").classList.add("active");
+        } else if(lang === "css") {
+          editor.setModel(cssModel);
+          document.getElementById("cssTab").classList.add("active");
+        } else if(lang === "js") {
+          editor.setModel(jsModel);
+          document.getElementById("jsTab").classList.add("active");
+        }
+      }
+
+      // Download combined HTML content as an index.html file.
+      window.downloadCode = function() {
+        const blob = new Blob([htmlModel.getValue()], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'index.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      // Save current code to localStorage.
+      window.saveCode = function() {
+        localStorage.setItem("code-html", htmlModel.getValue());
+        localStorage.setItem("code-css", cssModel.getValue());
+        localStorage.setItem("code-js", jsModel.getValue());
+        alert("Code saved to local storage.");
+      };
+
+      // Clear the editor by resetting to default templates.
+      window.clearEditor = function() {
+        htmlModel.setValue(initialHtml);
+        cssModel.setValue(initialCss);
+        jsModel.setValue(initialJs);
+        setActiveTab("html");
+        runCode();
+      };
+
+    });
+  </script>
 </body>
 </html>
