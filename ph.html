@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2 id="welcome-message">Welcome Back, <span id="username">CJ, What do you want to do today?</span></h2>
+    <div class="clock-container">
+        <div class="clock" id="clock">00:00:00</div>
+    </div>
+    <!--button-->
+    <div class="button-wrap">
+        <a href="https://github.com">
+        <button>
+          <span>Github</span>
+        </button>
+        </a>
+        <div class="button-shadow"></div>
+    </div>
+    <div class="button-wrap">
+        <a href="https://classroom.google.com">
+        <button>
+          <span>Classroom</span>
+        </button>
+        </a>
+        <div class="button-shadow"></div>
+    </div>
+  </a>
+        <div class="button-shadow"></div>
+    </div>
+    <div class="button-wrap">
+        <a href="https://xbox.com">
+        <button>
+          <span>Xbox</span>
+        </button>
+        </a>
+        <div class="button-shadow"></div>
+      <div class="button-wrap">
+        <a href="live.html">
+        <button>
+          <span>Live</span>
+        </button>
+        </a>
+        <div class="button-shadow"></div>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString();
+            updateGreeting();
+        }
+        updateClock(); 
+        setInterval(updateClock, 1000);
+
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = '';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 18) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+            document.getElementById('welcome-message').textContent = `${greeting}, ${document.getElementById('username').textContent}`;
+        }
+
+    </script>
+    <!-- Background -->
+    <svg style="position: absolute; width: 100%; height: 100%; z-index: 0;" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="dottedGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="rgba(0,0,0,0.15)" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#dottedGrid)" />
+    </svg>
+</body>
+</html>
