@@ -1,45 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CJ HAUSER</title>
-<style>
-    /* Full viewport layout */
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        font-family: 'Arial', sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(135deg, #6a11cb, #2575fc);
-        overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudCompile</title>
+    <style>
+        /* Make the page fill the entire viewport and remove margins */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f0f0; /* Optional: background color */
+        }
 
-    /* Glassmorphism container for Tripetto */
-    #tripetto-11ex47s {
-        width: 90%;
-        height: 90%;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Make the Tripetto iframe/runner take full container */
-    #tripetto-11ex47s > * {
-        flex: 1;
-    }
-</style>
+        /* Make the Tripetto container take full screen */
+        #tripetto-11ex47s {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
+    <!-- Tripetto container -->
     <div id="tripetto-11ex47s"></div>
 
     <!-- Tripetto scripts -->
