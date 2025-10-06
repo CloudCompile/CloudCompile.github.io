@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CJ HAUSER</title>
+<style>
+    /* Full viewport layout */
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        overflow: hidden;
+    }
+
+    /* Glassmorphism container for Tripetto */
+    #tripetto-11ex47s {
+        width: 90%;
+        height: 90%;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Make the Tripetto iframe/runner take full container */
+    #tripetto-11ex47s > * {
+        flex: 1;
+    }
+</style>
+</head>
+<body>
+    <div id="tripetto-11ex47s"></div>
+
+    <!-- Tripetto scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tripetto/runner"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tripetto/runner-autoscroll"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tripetto/studio"></script>
+    <script>
+        TripettoStudio.form({
+            runner: TripettoAutoscroll,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoicnkvbW53UlhZN1pKWS9EVjA2TTFrSkoxRmpxUXh3Zm0vSW1VaUJ5UGdhUT0iLCJkZWZpbml0aW9uIjoiY1d3YlVDRko5VTYrYmFZNTRmT05IMXlMT3NheTMvSzcrV01aaHNZc2JOdz0iLCJ0eXBlIjoiY29sbGVjdCJ9.fF86YLYAAxnGHSdub6cwq_1dxbujM-5xZV3x-QAflDI",
+            element: "tripetto-11ex47s"
+        });
+    </script>
+</body>
+</html>
